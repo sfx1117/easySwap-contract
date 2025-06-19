@@ -1,0 +1,134 @@
+1、function initialize();
+	公共初始化接口,调用内部初始化函数 __EasySwapOrderBook_init();
+2、function __EasySwapOrderBook_init()
+	内部初始化函数,调用核心初始化函数 __EasySwapOrderBook_init_unchained();
+3、function __EasySwapOrderBook_init_unchained()
+	核心初始化函数,
+	__Context_init();           //初始化上下文
+	__Ownable_init();           //初始化所有权，将调用者设置为所有者
+	__ReentrancyGuard_init();   //初始化防重入保护
+	__Pausable_init();          //初始化可暂停功能
+
+	//----初始化订单相关功能
+	__OrderStorage_init(); //初始化订单存储
+	__ProtocolManager_init(newProtocolShare); //初始化协议管理器，设置协议份额
+	__OrderValidator_init(EIP721Name, EIP721Version); //初始化订单验证器 设置 EIP712 相关参数
+
+	setVault(newVault); //设置金库地址
+	
+	//批量创建订单
+4、function makeOrders(LibOrder.Order[] calldata newOrders);
+	1）循环newOrders
+		①、如果是买单(Bid)，计算总价buyPrice = 单价 × 数量
+		②、调用函数_makeOrderTry（），尝试创建订单
+		③、如果创建成功，统计买单所需要的总ETH
+	2）如果用户发送的ETH多于实际需要,将多余的部分退还给用户
+		
+4.1、function _makeOrderTry(LibOrder.Order calldata order,uint128 ETHAmount)//尝试创建订单
+	1)订单参数校验
+		order.maker==_msgSender() //只有订单创建者可以提交
+		&& order.price !=0  //订单价格不为0 
+		&& order.salt!=0    //订单salt不为0
+		&& (order.expiry > block.timestamp || order.expiry ==0) //订单未过期或无期限
+		&& filledAmount[LibOrder.hash(order)]==0    //订单未被取消或成交
+	2）若订单为卖单
+		①、校验参数：卖单数量必须为1
+		②、将NFT从卖家地址转移到金库合约
+	3）若订单为买单
+		①、校验参数：买单数量不能为0
+		②、将ETH从买家地址转移到金库合约
+	4）将订单存储到订单薄中
+	5）触发订单创建事件
+	
+	
+	//批量取消订单
+5、function cancleOrders(OrderKey[] calldata orderKeys) 
+	循环遍历orderKeys，调用_cancleOrderTry()函数
+5.1、function _cancleOrderTry(OrderKey orderKey) //尝试取消订单
+	1)订单参数校验：
+		order.maker == _msgSender() //调用者必须是订单创建者
+        && filledAmount[orderKey] < order.nft.amount //订单未完全成交（已成交数量 < 订单总量）
+	2）从订单薄中删除订单信息
+	3）若订单为卖单
+		从金库合约中取出NFT返还给订单创建者
+	4）若订单为买单
+		计算未成交的ETH，并从金库合约中取出未成交的ETH，返还给订单创建者
+	
+	
+	//批量编辑订单
+6、function editOrders(LibOrder.EditDetail[] calldata editDetails)
+	1）循环遍历 editDetails
+		①、调用_editOrderTry()函数，尝试编辑订单
+		②、统计买单所需要的总ETH
+	2）如果用户发送的ETH多于实际需要,将多余的部分退还给用户
+6.1、function _editOrderTry(LibOrder.EditDetail calldata editDetail) //尝试编辑订单
+	1）新旧订单参数一致性校验
+	2）新订单有效性校验
+	3）从订单薄中删除旧订单信息
+	4）取消旧订单
+	5）将新订单存储到订单薄中
+	6）资产的处理
+		①、若订单为卖单，
+			将更新金库中的订单Key映射
+		②、若订单为买单
+			计算价格差额：新总价 - 旧剩余价    
+			若新总价> 旧剩余价,则需要补充ETH，并编辑金库合约中的ETH
+			若新总价<旧剩余价,编辑金库合约中的ETH，并将多余的ETH退回
+	7）触发编辑订单的事件
+
+	
+	//匹配订单（单笔）
+7、function matchOrder(LibOrder.Order calldata sellOrder, LibOrder.Order calldata buyOrder)
+	1）调用_matchOrder()函数，尝试匹配订单
+	2）若ETH多余实际需要的，则退回多余的ETH
+7.1、function _matchOrder(LibOrder.order calldata sellOrder,LibOrder.order calldata buyOrder,uint256 msgValue)//尝试匹配订单
+	1）若操作者为为卖单，以买单价格为成交价
+		①、判断订单是否已存在
+			若存在，则将订单从订单薄中删除，并更新成交数量
+		②、从金库合约中将买单的ETH提取出来
+		③、计算协议费
+		④、将扣除协议费后的ETH转移给卖单的maker
+		⑤、将卖单的NFT转移给买单的maker
+	2）若操作者为为买单
+		①、检查买方订单是否已存在  
+		②、验证卖单的有效性
+		③、若买单存在，则从金库合约中提取ETH
+		④、计算协议费
+		⑤、将扣除协议费后的ETH转移给卖单的maker
+		⑥、将卖单的NFT转移给买单的maker
+		
+		
+	//匹配订单（批量）
+8、function matchOrders(LibOrder.MatchDetail[] calldata matchDetails)
+	1）循环遍历matchDetails
+		①、使用delegatecall调用内部函数matchOrderWithoutPayback
+		②、内部函数调用成功，且订单为买单，则统计买单的ETH
+	2）统计买单所需要的总ETH
+	3）将多余的部分退还给用户
+8.1、function matchOrderWithoutPayback(LibOrder.Order calldata sellOrder,LibOrder.Order calldata buyOrder,uint256 msgValue)
+	1）调用内部函数_matchOrder()，尝试匹配订单
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
