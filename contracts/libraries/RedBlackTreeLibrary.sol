@@ -1,4 +1,4 @@
-pragma solidity ^0.8.*;
+pragma solidity ^0.8.19;
 
 // ----------------------------------------------------------------------------
 // BokkyPooBah's Red-Black Tree Library v1.0-pre-release-a

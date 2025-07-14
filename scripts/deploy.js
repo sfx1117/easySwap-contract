@@ -1,12 +1,12 @@
 const { ethers, upgrades } = require("hardhat")
 
 /**  * 2025/02/15 in sepolia testnet
- * esVault contract deployed to: 0xaD65f3dEac0Fa9Af4eeDC96E95574AEaba6A2834
-     esVault ImplementationAddress: 0x5D034EA7F15429Bcb9dFCBE08Ee493F001063AF0
-     esVault AdminAddress: 0xe839419C14188F7b79a0E4C09cFaF612398e7795
-   esDex contract deployed to: 0xcEE5AA84032D4a53a0F9d2c33F36701c3eAD5895
-      esDex ImplementationAddress: 0x17B2d83BFE9089cd1D676dE8aebaDCA561f55c96
-      esDex AdminAddress: 0xe839419C14188F7b79a0E4C09cFaF612398e7795
+ * esVault contract deployed to: 0xbBdA359F250761fA57C0fBeaF63c75Ba1A14767f
+     esVault ImplementationAddress: 0x41D6e6CEDB6748FeC02063Ed85c90fe59E4FCFcc
+     esVault AdminAddress: 0xcDb8c3ad532eA641cFb1862D332E3238a164210b
+   esDex contract deployed to: 0x827B2Eb914d2AaB14CA3C735dF0D73A220E59F3F
+      esDex ImplementationAddress: 0xE876947d22AAD704e1aEA0297D58092666551e0b
+      esDex AdminAddress: 0xcDb8c3ad532eA641cFb1862D332E3238a164210b
  */
 
 async function main() {
@@ -21,7 +21,7 @@ async function main() {
   // console.log(await upgrades.erc1967.getAdminAddress(esVault.address), " esVault getAdminAddress")
 
   // newProtocolShare = 200;
-  // newESVault = "0xaD65f3dEac0Fa9Af4eeDC96E95574AEaba6A2834";
+  // newESVault = "0xbBdA359F250761fA57C0fBeaF63c75Ba1A14767f";
   // EIP712Name = "EasySwapOrderBook";
   // EIP712Version = "1";
   // let esDex = await ethers.getContractFactory("EasySwapOrderBook")
@@ -31,8 +31,8 @@ async function main() {
   // console.log(await upgrades.erc1967.getImplementationAddress(esDex.address), " esDex getImplementationAddress")
   // console.log(await upgrades.erc1967.getAdminAddress(esDex.address), " esDex getAdminAddress")
 
-  esDexAddress = "0xcEE5AA84032D4a53a0F9d2c33F36701c3eAD5895"
-  esVaultAddress = "0xaD65f3dEac0Fa9Af4eeDC96E95574AEaba6A2834"
+  esDexAddress = "0x827B2Eb914d2AaB14CA3C735dF0D73A220E59F3F"
+  esVaultAddress = "0xbBdA359F250761fA57C0fBeaF63c75Ba1A14767f"
   const esVault = await (
     await ethers.getContractFactory("EasySwapVault")
   ).attach(esVaultAddress)

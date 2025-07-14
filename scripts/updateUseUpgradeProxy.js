@@ -1,10 +1,10 @@
 const { ethers, upgrades } = require("hardhat");
 
 const esDex_name = "EasySwapOrderBook";
-const esDex_address = "0xcEE5AA84032D4a53a0F9d2c33F36701c3eAD5895"
+const esDex_address = "0x827B2Eb914d2AaB14CA3C735dF0D73A220E59F3F"
 
 const esVault_name = "EasySwapVault";
-const esVault_address = "0xaD65f3dEac0Fa9Af4eeDC96E95574AEaba6A2834"
+const esVault_address = "0xbBdA359F250761fA57C0fBeaF63c75Ba1A14767f"
 
 /**  * 2024/12/22 in sepolia testnet
  * esVault contract deployed to: 0xaD65f3dEac0Fa9Af4eeDC96E95574AEaba6A2834
@@ -20,14 +20,20 @@ async function main() {
     const [signer, owner] = await ethers.getSigners();
     console.log(signer.address, " : signer");
 
-    // let esDex = await ethers.getContractFactory(esDex_name);
-    // console.log(await upgrades.erc1967.getImplementationAddress(esDex_address), " getOldImplementationAddress")
-    // console.log(await upgrades.erc1967.getAdminAddress(esDex_address), " getAdminAddress")
+    // let esDex = await (
+    //     await ethers.getContractFactory(esDex_name)
+    // ).attach(esDex_address)
+    // let vault = await esDex.getVault()
+    // console.log(vault,"vault")
 
-    // esDex = await upgrades.upgradeProxy(esDex_address, esDex);
-    // esDex = await esDex.deployed();
-    // console.log("esDex upgraded");
-    // console.log(await upgrades.erc1967.getImplementationAddress(esDex_address), " getNewImplementationAddress")
+    let esDex = await ethers.getContractFactory(esDex_name);
+    console.log(await upgrades.erc1967.getImplementationAddress(esDex_address), " getOldImplementationAddress")
+    console.log(await upgrades.erc1967.getAdminAddress(esDex_address), " getAdminAddress")
+
+    esDex = await upgrades.upgradeProxy(esDex_address, esDex);
+    esDex = await esDex.deployed();
+    console.log("esDex upgraded");
+    console.log(await upgrades.erc1967.getImplementationAddress(esDex_address), " getNewImplementationAddress")
     
     // esVault
     // let esVault = await ethers.getContractFactory(esVault_name);

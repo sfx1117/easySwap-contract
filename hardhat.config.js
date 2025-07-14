@@ -39,14 +39,14 @@ module.exports = {
     }
   },
   networks: {
-    mainnet: {
+    /* mainnet: {
       url: `https://eth-mainnet.g.alchemy.com/v2/${MAINNET_ALCHEMY_AK}`,
       accounts: [`${MAINNET_PK}`],
       saveDeployments: true,
       chainId: 1,
-    },
+    }, */
     sepolia: {
-      url: `https://eth-sepolia.g.alchemy.com/v2/${SEPOLIA_ALCHEMY_AK}`,
+      url: `https://sepolia.infura.io/v3/${SEPOLIA_ALCHEMY_AK}`,
       accounts: [`${SEPOLIA_PK_ONE}`, `${SEPOLIA_PK_TWO}`],
     },
     // optimism: {

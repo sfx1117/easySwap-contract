@@ -12,20 +12,20 @@ const { toBn } = require("evm-bn")
  */
 
 const esDex_name = "EasySwapOrderBook";
-const esDex_address = "0xcEE5AA84032D4a53a0F9d2c33F36701c3eAD5895"
+const esDex_address = "0x827B2Eb914d2AaB14CA3C735dF0D73A220E59F3F"
 
 const esVault_name = "EasySwapVault";
-const esVault_address = "0xaD65f3dEac0Fa9Af4eeDC96E95574AEaba6A2834"
+const esVault_address = "0xbBdA359F250761fA57C0fBeaF63c75Ba1A14767f"
 
 const erc721_name = "TestERC721"
-const erc721_address = "0xF2e0BA02a187F19F5A390E4f990c684d81A833A0"
+const erc721_address = "0xdD93D549658b3D92Fa7037E71d2F9F803B691448"
 
 let esDex, esVault, testERC721
 let deployer
 async function main() {
     [deployer, trader] = await ethers.getSigners()
     console.log("deployer: ", deployer.address)
-    console.log("trader: ", trader.address)
+    // console.log("trader: ", trader.address)
 
     esDex = await (
         await ethers.getContractFactory(esDex_name)
@@ -44,9 +44,9 @@ async function main() {
     await approvalForVault();
 
     // 2. make order
-    await testMakeOrder();
+    // await testMakeOrder();
 
-    // for (let i = 1; i < 20; i++) {
+    // for (let i = 1; i < 10; i++) {
     //     await testMakeOrder(i);
     // }
 
@@ -54,9 +54,9 @@ async function main() {
     // let orderKeys = [];
     // await testCancelOrder(orderKeys);
 
-    // let orderKeys1 = ["0xa48c77f5aa25cd7b0d207b491cf7a0ef5cc5cf15e3c1f9534b6791ef856f0dbe"]
-    // let orderKeys2 = ["0x2f01e4ef5cbea217934b2bb27a73fac35032a75ffb030dea41fdb995c55f3069",
-    //     "0x3450ada942fc2595d7d12bd6385cf3f1b03a614b9076bb23adaf808205e49d3b"]
+    // let orderKeys1 = ["0xf4449d0d4fd41a58b1742c658e9815751c3cad77ae1cff0e45cefa59ef72b433"]
+    // let orderKeys2 = ["0xfb0c47be95408c94f21bb61301b1c576cf9ceaee358fd8f224a74a112089733e",
+    //     "0xe617087947ff8f054ec28b997cf432118d3d6f794a4785539e17fd3e5896904c"]
 
     // await testCancelOrder(orderKeys1);
     // await testCancelOrder(orderKeys2);
@@ -65,28 +65,28 @@ async function main() {
     // 4. match order 
     // await testMatchOrder();
 
-    // let orderKeys = ["0x98e25dd9a45bbf79100ebe3b1b311b2b6702a28c9fca5ee317feb0049893faa5",
-    //     "0x0c78b81d5da49fe7fd13832aac4aba9f79f31d25453b61ed09ec3ce941adca70",
-    //     "0x201dc11898ad0213485b4b34b9702beedc8f3bbcc71b2e38512508adb59c8ea9"];
+    let orderKeys = ["0x98e25dd9a45bbf79100ebe3b1b311b2b6702a28c9fca5ee317feb0049893faa5",
+        "0x0c78b81d5da49fe7fd13832aac4aba9f79f31d25453b61ed09ec3ce941adca70",
+        "0x201dc11898ad0213485b4b34b9702beedc8f3bbcc71b2e38512508adb59c8ea9"];
 
-    // for (let i = 0; i < 2; i++) {
-    //     let info = await getOrderInfo(orderKeys[i]);
-    //     let sellOrder = info.order;
-    //     // console.log("sellOrder: ", sellOrder);
-    //     let buyOrder = {
-    //         side: Side.Bid,
-    //         saleKind: SaleKind.FixedPriceForItem,
-    //         maker: trader.address,
-    //         nft: sellOrder.nft,
-    //         price: sellOrder.price,
-    //         expiry: sellOrder.expiry,
-    //         salt: sellOrder.salt,
-    //     }
+    for (let i = 0; i < 2; i++) {
+        let info = await getOrderInfo(orderKeys[i]);
+        let sellOrder = info.order;
+        // console.log("sellOrder: ", sellOrder);
+        let buyOrder = {
+            side: Side.Bid,
+            saleKind: SaleKind.FixedPriceForItem,
+            maker: trader.address,
+            nft: sellOrder.nft,
+            price: sellOrder.price,
+            expiry: sellOrder.expiry,
+            salt: sellOrder.salt,
+        }
 
-    //     let tx = await esDex.connect(trader).matchOrder(sellOrder, buyOrder, { value: toBn("0.002") });
-    //     let txRec = await tx.wait();
-    //     console.log("matchOrder tx: ", tx.hash);
-    // }
+        let tx = await esDex.connect(trader).matchOrder(sellOrder, buyOrder, { value: toBn("0.002") });
+        let txRec = await tx.wait();
+        console.log("matchOrder tx: ", tx.hash);
+    }
 
     // 5. else
     // await withdrawProtocolFee();
